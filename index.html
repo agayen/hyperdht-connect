@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
+    <title>Hello World!</title>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="./assets/main.css">
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.0/dist/sweetalert2.min.css" rel="stylesheet">
+</head>
+
+<body>
+    <div class="top-bar">
+        <span id="token">XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX</span>
+    </div>
+    <div id="enter_app" class="enter_app">
+        <div>
+            <div class="meeting_rules"> 
+                To participate in the meeting, you must generate a token or join using an existing token.
+            </div>
+            <div class="btn_options">
+                <button id="get_token">GET TOKEN</button>
+                <button id="join_token">JOIN TOKEN</button>
+            </div>
+        </div>
+    </div>
+    <div id="main_app" class="main_app">
+        <div class="chat_app">
+            <div class="chat_body" id="chat_body">
+            </div>
+            <div class="chat_footer">
+                <input type="text" id="chat_send" placeholder="">
+                <button id="send_message">Send</button>
+            </div>
+        </div>
+    </div>
+  
+    <script src="./render.js"></script>
+</body>
+
+</html>

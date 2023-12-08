@@ -1,0 +1,112 @@
+*{
+    padding: 0;
+    margin: 0;
+}
+body {
+    background-color: rgba(23, 22, 22, 0.886);
+}
+
+.top-bar{
+    height: 20px;
+    text-align: right;
+    background-color: rgba(30, 29, 29, 0.886);
+    color: rgb(187, 182, 182);
+    font-size: 14px;
+    display: flex;
+    justify-content: end;
+    align-items: center;
+}
+
+.enter_app{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100vw;
+    height: calc(100vh - 40px);
+}
+
+.enter_app button {
+    padding: 10px 20px;
+    font-size: 18px;
+    margin: 15px;
+    border-radius: 5px;
+}
+
+.enter_app #get_token{
+    background-color: rgb(127, 255, 212);
+}
+
+.meeting_rules{
+    color: rgb(187, 182, 182);
+    font-size: 25px;
+}
+
+.btn_options{
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+    align-items: center;
+}
+
+.hidden_com {
+    display: none;
+}
+
+.main_app{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100vw;
+    height: calc(100vh - 40px);
+}
+
+.chat_app{
+    height: 90vh;
+    width: 600px;
+}
+.chat_body{
+    height: 95%;
+    overflow: auto;
+}
+.chat_footer{
+    height: 5%;
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+}
+.chat_app input{
+    width: 85%;
+    height: 80%;
+    color: white;
+    background-color: transparent;
+    border: none;
+    outline: none;
+    border-bottom: 1px solid white;
+    font-size: 15px;
+}
+
+.chat_app button{
+    width: 50px;
+    height: 30px;
+}
+
+.message{
+    width: 100%;
+    margin: 5px 0px 5px 0px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.right-message{
+    padding: 5px 7px;
+    background-color: white;
+    max-width: 80%;
+    border-radius: 10px 0 10px 10px;
+}
+
+.left-message{
+    padding: 5px 7px;
+    background-color: rgb(134, 171, 240);
+    max-width: 80%;
+    border-radius: 0px 10px 10px 10px;
+}
