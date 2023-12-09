@@ -71,6 +71,7 @@ const addMessageInChatBody = (message_data) => {
 // in video call
 let localStream = null;
 let remoteStream = null;
+let peerConnection = null;
 
 const videoApp = document.getElementById('video_app');
 const voiceCall = document.getElementById('voice_call');
@@ -151,6 +152,21 @@ const passVideoToken = async (token_data, call_status) => {
     }
 }
 
+const passWebrtcCred = async (token_data) => {
+    const video_call_data = {
+        token_data,
+        action_type: 'webrtc_ice_cred',
+    }
+    const res = await window.electronAPI.passVideoToken(video_call_data)
+    if(res){
+
+    }
+    else{
+        console.error('not able to pass webrtc_ice_cred');
+        hangUp();
+    }
+}
+
 const startVideoAudioCall = async (video_on) => {
     let local_stream = await openUserMedia(video_on)
     voiceCall.disabled = true
@@ -163,16 +179,33 @@ const startVideoAudioCall = async (video_on) => {
         peerConnection.addTrack(track, local_stream);
     });
 
+    // Code for collecting ICE candidates below
+    peerConnection.addEventListener('icecandidate', event => {
+        if (!event.candidate) {
+        console.log('Got final candidate!');
+        return;
+        }
+        console.log('Got candidate: need to save', event.candidate);
+        passWebrtcCred(event.candidate.toJSON())
+    });
+    // Code for collecting ICE candidates above
+
     // offer need to send to peer
     const offer = await peerConnection.createOffer();
     await peerConnection.setLocalDescription(offer);
 
     const roomWithOffer = {
         'offer': {
-        type: offer.type,
-        sdp: offer.sdp,
+            type: offer.type,
+            sdp: offer.sdp,
         },
     };
+
+    if (video_on){
+        roomWithOffer['call_type'] = 'video';
+    }else{
+        roomWithOffer['call_type'] = 'audio';
+    }
 
     await passVideoToken(roomWithOffer, 'incoming')
 
@@ -185,8 +218,14 @@ const startVideoAudioCall = async (video_on) => {
     });
 }
 
-const hangUp = async() => {
-    const tracks = document.querySelector('#localVideo').srcObject.getTracks();
+const iceTokenCredUpdate = async(data) => {
+    if (peerConnection && data?.token_data){
+        await peerConnection.addIceCandidate(new RTCIceCandidate(data?.token_data));
+    }
+}
+
+const hangUp = async(from_peer = false) => {
+    const tracks = document.querySelector('#localVideo')?.srcObject?.getTracks();
     tracks?.forEach(track => {
       track.stop();
     });
@@ -209,15 +248,37 @@ const hangUp = async() => {
     voiceCall.disabled = false
     videoCall.disabled = false
     videoApp.classList.remove('video_app');
+
+    if (!from_peer) await passVideoToken({}, 'ended')
 }
 
-const joinMeeting = async (offer_token) =>{
-    let local_stream = await openUserMedia(true)
+const joinMeeting = async (offer_data) =>{
+    const call_type = offer_data?.call_type
+    const offer_token = offer_data?.offer
+    let local_stream = null;
+
+    if (call_type === 'video'){
+        local_stream = await openUserMedia(true)
+    }else{
+        local_stream = await openUserMedia(false)
+    }
+
     peerConnection = new RTCPeerConnection(configuration);
     registerPeerConnectionListeners();
     local_stream.getTracks().forEach(track => {
       peerConnection.addTrack(track, local_stream);
     });
+
+    // Code for collecting ICE candidates below
+    peerConnection.addEventListener('icecandidate', event => {
+      if (!event.candidate) {
+        console.log('Got final candidate!');
+        return;
+      }
+      console.log('Got candidate: need to save', event.candidate);
+      passWebrtcCred(event.candidate.toJSON())
+    });
+    // Code for collecting ICE candidates above
 
     peerConnection.addEventListener('track', event => {
         console.log('Got remote track:', event.streams[0]);
@@ -240,7 +301,7 @@ const joinMeeting = async (offer_token) =>{
         sdp: answer.sdp,
       },
     };
-    await passVideoToken(roomWithAnswer, 'answered')
+    await passVideoToken(roomWithAnswer, 'answered');
 }
 
 const handsack = async(answer) => {
@@ -256,10 +317,13 @@ const addVideoCallActivity = (message_data) => {
     if(token_data && call_status){
         switch (call_status){
             case 'incoming':
-                joinMeeting(token_data?.offer)
+                joinMeeting(token_data)
                 break;
             case 'answered':
                 handsack(token_data?.answer)
+                break;
+            case 'ended':
+                hangUp(true)
                 break;
             default:
                 console.error('call_status does not exit')
@@ -278,6 +342,9 @@ const socketDataCallBackFun = (message_data) => {
             break;
         case 'video':
             addVideoCallActivity(message_data)
+            break;
+        case 'webrtc_ice_cred':
+            iceTokenCredUpdate(message_data)
             break;
         default:
             console.error("Invalid action type");

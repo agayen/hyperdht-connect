@@ -60,7 +60,7 @@ class HyperdhtClient {
         this.socket.on('data', (data) => {
             const message_data = JSON.parse(data);
             cb_fn(message_data);
-            console.log('comming data -> ',data.toString());
+            // console.log('comming data -> ',data.toString());
         });
 
         this.socket.once('open', () => console.log('got connection!'))
