@@ -9,15 +9,20 @@ window.addEventListener('DOMContentLoaded', () => {
 
 
 contextBridge.exposeInMainWorld('electronAPI', {
-    getToken:  async () => {
-        let data = await hyperdht_client.get_token()
+    getToken:  async (payload) => {
+        let data = await hyperdht_client.get_token(payload)
         return data
     },
-    setToken: async (token, error_message) => {
-        let data = await hyperdht_client.set_token(token, error_message)
+    setToken: async (payload) => {
+        let data = await hyperdht_client.set_token(payload)
         return data
     },
     sendMessage: async (message_data) => {
-        await hyperdht_client.send_message(message_data)
-    }
+        let data = await hyperdht_client.send_message(message_data)
+        return data
+    },
+    passVideoToken: async (payload) => {
+        let data = await hyperdht_client.pass_video_token(payload)
+        return data
+    },
 })

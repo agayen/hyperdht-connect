@@ -33,69 +33,49 @@ const getTokenMessage = (success_m, token) => {
     });
 }
 
-const verifyToken =  () => {
-    Swal.fire({
-        title: "Enter Token to Join in Room",
-        input: "text",
-        inputAttributes: {
-          autocapitalize: "off",
-          required: 'true'
-        },
-        showCancelButton: true,
-        confirmButtonText: "Look up",
-        showLoaderOnConfirm: true,
-        preConfirm: async (token_value) => {
-            if (!token_value) errorTip('Enter a valid token')
-            
-            let isConnected = await window.electronAPI.setToken(token_value)
-            if(isConnected) {
-                mainApp.classList.add('main_app');
-                enterApp.remove()
-                successTip('Token is verified')
-            }else{
-                errorTip('Not able to connect')
-            }
-        },
-        allowOutsideClick: () => !Swal.isLoading()
-    })
-}
-
-joinToken.addEventListener('click', () =>{
-    verifyToken()
-});
-
-getToken.addEventListener('click', async () => {
-    let room_token = await window.electronAPI.getToken()
-
-    if(room_token){
-        mainApp.classList.add('main_app');
-        enterApp.remove()
-        getTokenMessage('Token has been created successfully', room_token)
-    }else{
-        errorTip('Not able to create token')
-    }
-})
-
-
 //  in chat app
 const sendMessage = document.getElementById('send_message')
 const messageInput = document.getElementById('chat_send')
-sendMessage.addEventListener('click', () => {
+const chatBody = document.getElementById('chat_body')
+
+sendMessage.addEventListener('click', async () => {
     const message_data = {
         action_type: 'chat',
         message: messageInput.value
     }
     console.log('enter message', message_data)
-    window.electronAPI.sendMessage(message_data)
-    messageInput.value = '';
+    const res = await window.electronAPI.sendMessage(message_data)
+    if (res){
+        const msgHTML  = `
+        <div class="message">
+            <div></div>
+            <div class="right-message">${message_data?.message}</div>
+        </div>`;
+        if (chatBody) chatBody.insertAdjacentHTML('beforeend', msgHTML);
+        messageInput.value = '';
+    }else{
+        errorTip('not able to send message')
+    }
 })
 
+const addMessageInChatBody = (message_data) => {
+    const msgHTML  = `
+        <div class="message">
+            <div class="left-message">${message_data?.message}</div>
+            <div></div>
+        </div>
+        `;
+    if (chatBody) chatBody.insertAdjacentHTML('beforeend', msgHTML);
+}
 
 // in video call
-let videoApp = document.getElementById('video_app')
 let localStream = null;
 let remoteStream = null;
 
+const videoApp = document.getElementById('video_app');
+const voiceCall = document.getElementById('voice_call');
+const videoCall = document.getElementById('video_call');
+const end_call = document.getElementById('end_call');
 const configuration = {
     iceServers: [
       {
@@ -108,48 +88,7 @@ const configuration = {
     iceCandidatePoolSize: 10,
 };
 
-async function openUserMedia(video_on) {
-    try {
-        const stream = await navigator.mediaDevices.getUserMedia({audio: true, video: video_on});
-        document.querySelector('#localVideo').srcObject = stream;
-        localStream = stream;
-        remoteStream = new MediaStream();
-        document.querySelector('#remoteVideo').srcObject = remoteStream;
-        videoApp.classList.add('video_app');
-        console.log('Stream:', document.querySelector('#localVideo').srcObject);
-    }catch(e){
-        console.log(e)
-    }
-}
-
-const startVideoAudioCall = async (video_on) => {
-    await openUserMedia(video_on)
-    // voiceCall.disabled = true
-    // videoCall.disabled = true
-
-    peerConnection = new RTCPeerConnection(configuration);
-    registerPeerConnectionListeners();
-
-    localStream?.getTracks()?.forEach(track => {
-        peerConnection.addTrack(track, localStream);
-    });
-}
-
-const voiceCall = document.getElementById('voice_call')
-const videoCall = document.getElementById('video_call')
-videoCall.addEventListener('click', async ()=> {
-    try{
-        await startVideoAudioCall(true)
-    }catch (e){
-        console.error(e)
-    }
-})
-voiceCall.addEventListener('click', async() => {
-    await startVideoAudioCall(false)
-})
-
-
-function registerPeerConnectionListeners() {
+const registerPeerConnectionListeners = () => {
     peerConnection.addEventListener('icegatheringstatechange', () => {
       console.log(
           `ICE gathering state changed: ${peerConnection.iceGatheringState}`);
@@ -169,4 +108,222 @@ function registerPeerConnectionListeners() {
     });
 }
 
+videoCall.addEventListener('click', async ()=> {
+    await startVideoAudioCall(true)
+})
+voiceCall.addEventListener('click', async() => {
+    await startVideoAudioCall(false)
+})
+end_call.addEventListener('click', () => {
+        hangUp()
+    }
+)
+
+const openUserMedia = async (video_on) => {
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({audio: true, video: video_on});
+        document.querySelector('#localVideo').srcObject = stream;
+        localStream = stream;
+        remoteStream = new MediaStream();
+        document.querySelector('#remoteVideo').srcObject = remoteStream;
+        videoApp.classList.add('video_app');
+        console.log('Stream:', document.querySelector('#localVideo').srcObject);
+        return localStream;
+    }catch(e){
+        console.log(e)
+        return null;
+    }
+}
+
+const passVideoToken = async (token_data, call_status) => {
+    const video_call_data = {
+        token_data,
+        call_status,
+        action_type: 'video',
+    }
+    const res = await window.electronAPI.passVideoToken(video_call_data)
+    if(res){
+
+    }
+    else{
+        console.error('not able to pass token');
+        hangUp();
+    }
+}
+
+const startVideoAudioCall = async (video_on) => {
+    let local_stream = await openUserMedia(video_on)
+    voiceCall.disabled = true
+    videoCall.disabled = true
+
+    peerConnection = new RTCPeerConnection(configuration);
+    registerPeerConnectionListeners();
+
+    local_stream?.getTracks()?.forEach(track => {
+        peerConnection.addTrack(track, local_stream);
+    });
+
+    // offer need to send to peer
+    const offer = await peerConnection.createOffer();
+    await peerConnection.setLocalDescription(offer);
+
+    const roomWithOffer = {
+        'offer': {
+        type: offer.type,
+        sdp: offer.sdp,
+        },
+    };
+
+    await passVideoToken(roomWithOffer, 'incoming')
+
+    peerConnection.addEventListener('track', event => {
+        console.log('Got remote track:', event.streams[0]);
+        event.streams[0].getTracks().forEach(track => {
+          console.log('Add a track to the remoteStream:', track);
+          remoteStream.addTrack(track);
+        });
+    });
+}
+
+const hangUp = async() => {
+    const tracks = document.querySelector('#localVideo').srcObject.getTracks();
+    tracks?.forEach(track => {
+      track.stop();
+    });
+
+    if(localStream){
+        localStream?.getTracks().forEach(track => track.stop());
+    }
   
+    if (remoteStream) {
+      remoteStream?.getTracks().forEach(track => track.stop());
+    }
+  
+    if (peerConnection) {
+      peerConnection.close();
+    }
+        
+  
+    document.querySelector('#localVideo').srcObject = null;
+    document.querySelector('#remoteVideo').srcObject = null;
+    voiceCall.disabled = false
+    videoCall.disabled = false
+    videoApp.classList.remove('video_app');
+}
+
+const joinMeeting = async (offer_token) =>{
+    let local_stream = await openUserMedia(true)
+    peerConnection = new RTCPeerConnection(configuration);
+    registerPeerConnectionListeners();
+    local_stream.getTracks().forEach(track => {
+      peerConnection.addTrack(track, local_stream);
+    });
+
+    peerConnection.addEventListener('track', event => {
+        console.log('Got remote track:', event.streams[0]);
+        event.streams[0].getTracks().forEach(track => {
+          console.log('Add a track to the remoteStream:', track);
+          remoteStream.addTrack(track);
+        });
+    });
+
+    // Code for creating SDP answer below
+    console.log('Got offer:', offer_token);
+    await peerConnection.setRemoteDescription(new RTCSessionDescription(offer_token));
+    const answer = await peerConnection.createAnswer();
+    console.log('Created answer:', answer);
+    await peerConnection.setLocalDescription(answer);
+
+    const roomWithAnswer = {
+      answer: {
+        type: answer.type,
+        sdp: answer.sdp,
+      },
+    };
+    await passVideoToken(roomWithAnswer, 'answered')
+}
+
+const handsack = async(answer) => {
+    console.log('Got remote description: ', answer);
+    const rtcSessionDescription = new RTCSessionDescription(answer);
+    await peerConnection.setRemoteDescription(rtcSessionDescription);
+}
+
+const addVideoCallActivity = (message_data) => {
+    const token_data = message_data?.token_data
+    const call_status = message_data?.call_status
+
+    if(token_data && call_status){
+        switch (call_status){
+            case 'incoming':
+                joinMeeting(token_data?.offer)
+                break;
+            case 'answered':
+                handsack(token_data?.answer)
+                break;
+            default:
+                console.error('call_status does not exit')
+        }
+    }
+}
+
+
+// get socket data 
+const socketDataCallBackFun = (message_data) => {
+    console.log('socketDataCallBack' , message_data)
+
+    switch (message_data?.action_type){
+        case 'chat':
+            addMessageInChatBody(message_data)
+            break;
+        case 'video':
+            addVideoCallActivity(message_data)
+            break;
+        default:
+            console.error("Invalid action type");
+    }
+    
+}
+
+const verifyToken =  () => {
+    Swal.fire({
+        title: "Enter Token to Join in Room",
+        input: "text",
+        inputAttributes: {
+          autocapitalize: "off",
+          required: 'true'
+        },
+        showCancelButton: true,
+        confirmButtonText: "Look up",
+        showLoaderOnConfirm: true,
+        preConfirm: async (token_value) => {
+            if (!token_value) errorTip('Enter a valid token')
+            
+            let isConnected = await window.electronAPI.setToken({token_value, cb_fn: socketDataCallBackFun})
+            if(isConnected) {
+                mainApp.classList.add('main_app');
+                enterApp.remove()
+                successTip('Token is verified')
+            }else{
+                errorTip('Not able to connect')
+            }
+        },
+        allowOutsideClick: () => !Swal.isLoading()
+    })
+}
+
+joinToken.addEventListener('click', () =>{
+    verifyToken()
+});
+
+getToken.addEventListener('click', async () => {
+    let room_token = await window.electronAPI.getToken({cb_fn: socketDataCallBackFun})
+
+    if(room_token){
+        mainApp.classList.add('main_app');
+        enterApp.remove()
+        getTokenMessage('Token has been created successfully', room_token)
+    }else{
+        errorTip('Not able to create token')
+    }
+})
