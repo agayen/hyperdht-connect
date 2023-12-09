@@ -40,5 +40,12 @@ systemPreferences.askForMediaAccess('camera').then((allowed)=>{
   }else{
     console.log('camera is not allowed')
   }
-}
-)
+})
+
+systemPreferences.askForMediaAccess('microphone').then((allowed)=>{
+  if(allowed){
+    console.log('microphone is allowed')
+  }else{
+    console.log('microphone is not allowed')
+  }
+})
