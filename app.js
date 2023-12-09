@@ -53,9 +53,10 @@ class HyperdhtClient {
         // this.socket.write('hello world!')
         this.socket.on('data', (data) => {
             // this.socket.write(Buffer.from(data.toString()))
+            const message_data = JSON.parse(data);
             const msgHTML  = `
             <div class="message">
-                <div class="left-message">${data}</div>
+                <div class="left-message">${message_data?.message}</div>
                 <div></div>
             </div>`;
             const chat_body_el = document.getElementById('chat_body')
@@ -68,10 +69,10 @@ class HyperdhtClient {
     client_socket = () => {
         // this.socket.write('hello world!')
         this.socket.on('data', (data) => {
-            // this.socket.write(Buffer.from(data.toString()))
+            const message_data = JSON.parse(data);
             const msgHTML  = `
             <div class="message">
-                <div class="left-message">${data}</div>
+                <div class="left-message">${message_data?.message}</div>
                 <div></div>
             </div>
             `;
@@ -98,11 +99,11 @@ class HyperdhtClient {
     }
 
     send_message = (data) => {
-        this.socket.write(Buffer.from(data.toString()))
+        this.socket.write(Buffer.from(JSON.stringify(data)))
         const msgHTML  = `
         <div class="message">
             <div></div>
-            <div class="right-message">${data}</div>
+            <div class="right-message">${data?.message}</div>
         </div>`;
         const chat_body_el = document.getElementById('chat_body')
         if (chat_body_el) chat_body_el.insertAdjacentHTML('beforeend', msgHTML);

@@ -1,16 +1,18 @@
-const { app, BrowserWindow } = require('electron')
+const { app, BrowserWindow , systemPreferences} = require('electron')
 // include the Node.js 'path' module at the top of your file
 const path = require('node:path')
 
 // modify your existing createWindow() function
 const createWindow = () => {
   const win = new BrowserWindow({
-    width: 1100,
+    width: 1200,
     height: 800,
+    minWidth: 800, 
+    minHeight: 500,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       nodeIntegration: true,
-      webSecurity: false
+      webSecurity: true
     }
   })
 
@@ -30,3 +32,13 @@ app.whenReady().then(() => {
       if (BrowserWindow.getAllWindows().length === 0) createWindow()
     })
 })
+
+
+systemPreferences.askForMediaAccess('camera').then((allowed)=>{
+  if(allowed){
+    console.log('Camera is allowed')
+  }else{
+    console.log('camera is not allowed')
+  }
+}
+)

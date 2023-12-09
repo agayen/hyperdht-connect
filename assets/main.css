@@ -62,18 +62,58 @@ body {
 
 .chat_app{
     height: 90vh;
-    width: 600px;
+    width: 40%;
+    max-width: 600px;
+    border-radius: 5px;
+    background-color: rgba(57, 55, 55, 0.886);
+    overflow: hidden;
 }
+
 .chat_body{
-    height: 95%;
+    height: 90%;
     overflow: auto;
+    margin: 0px 20px;
 }
+
 .chat_footer{
     height: 5%;
     display: flex;
     justify-content: space-evenly;
     align-items: center;
+    background-color: rgba(16, 14, 14, 0.886);
 }
+
+.chat_header{
+    height: 5%;
+    display: flex;  
+    align-items: center;
+    justify-content: space-between;
+    background-color: rgba(16, 14, 14, 0.886);
+    padding: 0px 5px;
+}
+
+.chat_header .call_options {
+    margin-right: 5px;
+}
+
+.chat_header .call_options button{
+    background-color: transparent;
+    border: none;
+    outline: none;
+    width: 30px;
+    height: 30px;
+    border-radius: 20px;
+    box-shadow: 1px 1px 1px rgb(247, 246, 246);
+}
+
+.chat_header .call_options button:hover{
+    box-shadow: 1px 2px 3px rgb(215, 189, 189);
+}
+
+.chat_header .call_options svg{
+    fill: white;
+}
+
 .chat_app input{
     width: 85%;
     height: 80%;
@@ -109,4 +149,12 @@ body {
     background-color: rgb(134, 171, 240);
     max-width: 80%;
     border-radius: 0px 10px 10px 10px;
+}
+
+.video_app{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 60%;
+    height: 90vh;
 }
