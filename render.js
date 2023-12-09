@@ -1,5 +1,16 @@
-// enter_app 
+//online offline 
+const updateOnlineStatus = () => {
+    document.getElementById('status').innerHTML = navigator.onLine ? 'online' : 'offline'
+}
+  
+window.addEventListener('online', updateOnlineStatus)
+window.addEventListener('offline', updateOnlineStatus)
 
+updateOnlineStatus()
+
+
+
+// enter_app 
 const getToken = document.getElementById('get_token')
 const joinToken = document.getElementById('join_token')
 const enterApp = document.getElementById('enter_app');

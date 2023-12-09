@@ -13,8 +13,9 @@ body {
     color: rgb(187, 182, 182);
     font-size: 14px;
     display: flex;
-    justify-content: end;
+    justify-content: space-between;
     align-items: center;
+    font-family: Courier, monospace;
 }
 
 .enter_app{
@@ -23,6 +24,12 @@ body {
     align-items: center;
     width: 100vw;
     height: calc(100vh - 40px);
+}
+
+.meeting_rules{
+    width: 60%;
+    margin: auto;
+    text-align: center;
 }
 
 .enter_app button {
