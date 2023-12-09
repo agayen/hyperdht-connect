@@ -38,12 +38,15 @@ const sendMessage = document.getElementById('send_message')
 const messageInput = document.getElementById('chat_send')
 const chatBody = document.getElementById('chat_body')
 
-sendMessage.addEventListener('click', async () => {
+const sendMessageText = async () => {
+    const message = messageInput.value
+    if (message.trim().length === 0) return
+
     const message_data = {
         action_type: 'chat',
-        message: messageInput.value
+        message
     }
-    console.log('enter message', message_data)
+
     const res = await window.electronAPI.sendMessage(message_data)
     if (res){
         const msgHTML  = `
@@ -56,6 +59,17 @@ sendMessage.addEventListener('click', async () => {
     }else{
         errorTip('not able to send message')
     }
+}
+messageInput.addEventListener("keydown", (event) => {
+    if (event.keyCode === 13) {
+        sendMessageText()
+    }
+});
+
+
+
+sendMessage.addEventListener('click', async () => {
+    sendMessageText()
 })
 
 const addMessageInChatBody = (message_data) => {

@@ -7,7 +7,6 @@ window.addEventListener('DOMContentLoaded', () => {
     
 })
 
-
 contextBridge.exposeInMainWorld('electronAPI', {
     getToken:  async (payload) => {
         let data = await hyperdht_client.get_token(payload)
