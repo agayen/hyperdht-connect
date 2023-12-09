@@ -9,6 +9,7 @@
     "win_bulid": "electron-builder --win",
     "linux_build": "electron-builder --linux",
     "mac_release": "electron-builder --mac  --publish always",
+    "linux_release": "electron-builder --linux  --publish always",
     "build": "electron-builder --mac --windows --linux",
     "release": "electron-builder --mac --windows --linux --publish always"
   },
