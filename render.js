@@ -345,7 +345,6 @@ const addVideoCallActivity = (message_data) => {
     }
 }
 
-
 // get socket data 
 const socketDataCallBackFun = (message_data) => {
     console.log('socketDataCallBack' , message_data)
