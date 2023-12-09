@@ -4,7 +4,10 @@
   "description": "this is encripted communication system",
   "main": "main.js",
   "scripts": {
-    "start": "electron ."
+    "start": "electron .",
+    "mac_build": "electron-builder --mac",
+    "win_bulid": "electron-builder --win",
+    "linux_build": "electron-builder --linux"
   },
   "author": "Abhiijit Gayen <abhijitgayen428@gmail.com>",
   "license": "ISC",
