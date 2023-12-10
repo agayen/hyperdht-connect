@@ -26,7 +26,7 @@
     "hyperdht": "^6.11.2"
   },
   "build": {
-    "productName": "hyperdhtConnect",
+    "productName": "Hyperdht Connect",
     "appId": "abhijitgayen.vercel.app",
     "mac": {
       "category": "public.app-category.lifestyle"
