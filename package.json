@@ -1,6 +1,6 @@
 {
   "name": "hyperdht-connect",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "this is encripted communication system",
   "main": "main.js",
   "scripts": {
