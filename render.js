@@ -401,7 +401,7 @@ const verifyToken =  () => {
           required: 'true'
         },
         showCancelButton: true,
-        confirmButtonText: "Look up",
+        confirmButtonText: "Join Now",
         showLoaderOnConfirm: true,
         preConfirm: async (token_value) => {
             if (!token_value) errorTip('Enter a valid token')
