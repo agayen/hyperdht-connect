@@ -30,12 +30,20 @@
     </div>
     <div id="main_app" class="hidden_com">
         <div id="video_app" class="hidden_com">
-            <div id="videos" class="video_call">
-                <div class="local-video">
+            <div id="video_call_div" class="hidden_com">
+                <div class="local">
                     <video id="localVideo" muted autoplay playsinline></video>
                 </div>
-                <div class="remote-video">
+                <div class="remote">
                     <video id="remoteVideo" autoplay playsinline></video>
+                </div>
+            </div>
+            <div id="audio_call_div" class="hidden_com">
+                <div class="local">
+                    <img src="./assets/audio.svg"/>
+                </div>
+                <div class="remote">
+                    <img src="./assets/audio.svg"/>
                 </div>
             </div>
             <div>
@@ -59,8 +67,10 @@
             <div class="chat_body" id="chat_body">
             </div>
             <div class="chat_footer">
-                <input type="text" id="chat_send" placeholder="">
-                <button id="send_message">Send</button>
+                <input type="text" id="chat_send" placeholder="Enter You message .....">
+                <div id="send_message">
+                    <img src="./assets/send.svg">
+                </div>
             </div>
         </div>
     </div>

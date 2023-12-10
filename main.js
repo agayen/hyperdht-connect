@@ -26,7 +26,6 @@ app.on('window-all-closed', () => {
 
 app.whenReady().then(() => {
     createWindow()
-    // createWindow()
   
     app.on('activate', () => {
       if (BrowserWindow.getAllWindows().length === 0) createWindow()
@@ -34,18 +33,22 @@ app.whenReady().then(() => {
 })
 
 
-systemPreferences.askForMediaAccess('camera').then((allowed)=>{
-  if(allowed){
-    console.log('Camera is allowed')
-  }else{
-    console.log('camera is not allowed')
-  }
-})
-
-systemPreferences.askForMediaAccess('microphone').then((allowed)=>{
-  if(allowed){
-    console.log('microphone is allowed')
-  }else{
-    console.log('microphone is not allowed')
-  }
-})
+try{
+  systemPreferences.askForMediaAccess('camera').then((allowed)=>{
+    if(allowed){
+      console.log('Camera is allowed')
+    }else{
+      console.log('camera is not allowed')
+    }
+  })
+  
+  systemPreferences.askForMediaAccess('microphone').then((allowed)=>{
+    if(allowed){
+      console.log('microphone is allowed')
+    }else{
+      console.log('microphone is not allowed')
+    }
+  })
+}catch(e){
+  console.log('error ->',e);
+}

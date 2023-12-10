@@ -101,7 +101,11 @@ let peerConnection = null;
 const videoApp = document.getElementById('video_app');
 const voiceCall = document.getElementById('voice_call');
 const videoCall = document.getElementById('video_call');
-const end_call = document.getElementById('end_call');
+const endCall = document.getElementById('end_call');
+
+const videoCallDiv = document.getElementById('video_call_div');
+const audioCallDiv = document.getElementById('audio_call_div');
+
 const configuration = {
     iceServers: [
       {
@@ -140,7 +144,7 @@ videoCall.addEventListener('click', async ()=> {
 voiceCall.addEventListener('click', async() => {
     await startVideoAudioCall(false)
 })
-end_call.addEventListener('click', () => {
+endCall.addEventListener('click', () => {
         hangUp()
     }
 )
@@ -148,11 +152,21 @@ end_call.addEventListener('click', () => {
 const openUserMedia = async (video_on) => {
     try {
         const stream = await navigator.mediaDevices.getUserMedia({audio: true, video: video_on});
+
         document.querySelector('#localVideo').srcObject = stream;
         localStream = stream;
+
         remoteStream = new MediaStream();
         document.querySelector('#remoteVideo').srcObject = remoteStream;
+
         videoApp.classList.add('video_app');
+
+        if (video_on){
+            videoCallDiv.classList.add('video_call_div')
+        }else{
+            audioCallDiv.classList.add('audio_call_div')
+        }
+
         console.log('Stream:', document.querySelector('#localVideo').srcObject);
         return localStream;
     }catch(e){
@@ -273,6 +287,8 @@ const hangUp = async(from_peer = false) => {
     voiceCall.disabled = false
     videoCall.disabled = false
     videoApp.classList.remove('video_app');
+    audioCallDiv.classList.remove('audio_call_div')
+    videoCallDiv.classList.remove('video_call_div')
 
     if (!from_peer) await passVideoToken({}, 'ended')
 }
